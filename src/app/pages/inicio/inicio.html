@@ -1,0 +1,72 @@
+<section class="hero" aria-label="Banner principal">
+  <div class="hero-media">
+    <div class="hero-media-placeholder">
+      <span>Espacio para imagen de fondo</span>
+    </div>
+    <div class="hero-overlay"></div>
+  </div>
+
+  <div class="hero-content">
+    <p class="hero-eyebrow">Bienvenido a</p>
+    <h1 class="hero-title">NEXUS NIGHTCLUB</h1>
+    <p class="hero-desc">La mejor música, ambiente y experiencias únicas.</p>
+    <button type="button" class="btn-primary">Conoce más →</button>
+  </div>
+
+  <div class="hero-dots" role="tablist" aria-label="Slides del carrusel">
+    @for (slide of carouselSlides; track slide) {
+      <button
+        type="button"
+        class="hero-dot"
+        [class.hero-dot--active]="slide === activeSlide"
+        [attr.aria-selected]="slide === activeSlide"
+        (click)="activeSlide = slide"
+      ></button>
+    }
+  </div>
+</section>
+
+<section class="section events-section" aria-labelledby="eventos-heading">
+  <div class="section-header">
+    <h2 id="eventos-heading" class="section-title">Próximos eventos</h2>
+    <a href="#" class="section-link" (click)="$event.preventDefault()">Ver todos →</a>
+  </div>
+
+  <div class="events-row">
+    <div class="events-grid">
+      @for (evento of eventos; track evento.titulo) {
+        <article class="event-card">
+          <p class="event-date">{{ evento.fecha }}</p>
+          <h3 class="event-title">{{ evento.titulo }}</h3>
+          <p class="event-meta">{{ evento.generos }}</p>
+          <p class="event-detail">{{ evento.hora }} · {{ evento.lugar }}</p>
+        </article>
+      }
+    </div>
+
+    <aside class="promo-card" aria-label="Promoción destacada">
+      <p class="promo-label">Promoción destacada</p>
+      <h3 class="promo-title">2X1 EN<br />COCTELES</h3>
+      <p class="promo-sub">TODOS LOS VIERNES</p>
+      <div class="promo-graphic" aria-hidden="true">
+        <span class="promo-glass">🍸</span>
+        <span class="promo-glass">🍸</span>
+      </div>
+    </aside>
+  </div>
+</section>
+
+<section class="section gallery-section" aria-labelledby="galeria-heading">
+  <div class="section-header">
+    <h2 id="galeria-heading" class="section-title">Galería</h2>
+    <a href="#" class="section-link" (click)="$event.preventDefault()">Ver más →</a>
+  </div>
+
+  <div class="gallery-grid">
+    @for (item of galeriaPlaceholders; track item) {
+      <div class="gallery-thumb">
+        <span>Imagen {{ item }}</span>
+      </div>
+    }
+  </div>
+</section>
