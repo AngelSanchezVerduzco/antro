@@ -435,3 +435,52 @@
     padding: 1rem;
   }
 }
+
+.site-footer {
+  margin-top: auto;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(8, 8, 14, 0.55);
+}
+
+.site-footer-title {
+  margin: 0 0 0.35rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #c4b5fd;
+}
+
+.site-footer-desc {
+  margin: 0 0 0.85rem;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.site-footer-links {
+  display: grid;
+  gap: 0.65rem;
+  margin: 0;
+}
+
+.site-footer-links dt {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.45);
+}
+
+.site-footer-links dd {
+  margin: 0.15rem 0 0;
+  font-size: 0.85rem;
+}
+
+.site-footer-links a {
+  color: #e9d5ff;
+  text-decoration: none;
+}
+
+.site-footer-links a:hover {
+  text-decoration: underline;
+}

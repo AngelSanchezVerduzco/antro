@@ -167,5 +167,30 @@
     <main class="content">
       <router-outlet />
     </main>
+
+    <footer class="site-footer" data-nexus-widget="true">
+      <p class="site-footer-title">Enlace para dispositivos inteligentes</p>
+      <p class="site-footer-desc">
+        Widget / wearable / smart TV — consume la API de promociones de Nexus.
+      </p>
+      <dl class="site-footer-links">
+        <div>
+          <dt>Última promoción</dt>
+          <dd>
+            <a href="http://localhost:3000/api/promociones/latest" target="_blank" rel="noopener">
+              /api/promociones/latest
+            </a>
+          </dd>
+        </div>
+        <div>
+          <dt>Manifest del widget</dt>
+          <dd>
+            <a href="http://localhost:3000/api/widget/manifest" target="_blank" rel="noopener">
+              /api/widget/manifest
+            </a>
+          </dd>
+        </div>
+      </dl>
+    </footer>
   </div>
 </div>

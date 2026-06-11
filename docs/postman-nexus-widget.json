@@ -1,0 +1,49 @@
+{
+  "info": {
+    "name": "Nexus Widget API",
+    "description": "Prueba el backend de promociones sin emulador ni smartwatch.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/health"
+      }
+    },
+    {
+      "name": "Última promoción (lo que consume el widget)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/promociones/latest"
+      }
+    },
+    {
+      "name": "Manifest del widget",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/api/widget/manifest"
+      }
+    },
+    {
+      "name": "Publicar promoción nueva",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"title\": \"Ladies Night\",\n  \"body\": \"Cover gratis antes de las 11 PM\"\n}"
+        },
+        "url": "http://localhost:3000/api/promociones"
+      }
+    },
+    {
+      "name": "Ver imagen de promo (abrir en navegador)",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:3000/uploads/promo-default.svg"
+      }
+    }
+  ]
+}

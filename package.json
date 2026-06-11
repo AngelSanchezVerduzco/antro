@@ -8,6 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "node server/index.mjs",
+    "flutter:setup": "cd flutter_app && flutter create . --project-name nexus_widget && flutter pub get",
+    "flutter:run": "cd flutter_app && flutter run",
     "es:up": "docker compose up -d",
     "es:down": "docker compose down",
     "es:seed": "node server/seed.mjs"
