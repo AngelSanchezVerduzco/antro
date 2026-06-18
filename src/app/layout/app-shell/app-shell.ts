@@ -17,7 +17,7 @@ import { SearchService } from '../../services/search.service';
 interface NavItem {
   label: string;
   route: string;
-  icon: 'home' | 'menu' | 'tag' | 'calendar' | 'image' | 'reservation' | 'location';
+  icon: 'home' | 'menu' | 'tag' | 'calendar' | 'image' | 'reservation' | 'location' | 'dashboard';
 }
 
 @Component({
@@ -41,6 +41,7 @@ export class AppShell implements OnInit, OnDestroy {
 
   protected readonly navItems: NavItem[] = [
     { label: 'Inicio', route: '/inicio', icon: 'home' },
+    { label: 'Dashboard', route: '/dashboard', icon: 'dashboard' },
     { label: 'Carta', route: '/carta', icon: 'menu' },
     { label: 'Promociones', route: '/promociones', icon: 'tag' },
     { label: 'Eventos', route: '/eventos', icon: 'calendar' },

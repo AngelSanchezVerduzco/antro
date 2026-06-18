@@ -8,8 +8,10 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "node server/index.mjs",
-    "flutter:setup": "cd flutter_app && flutter create . --project-name nexus_widget && flutter pub get",
-    "flutter:run": "cd flutter_app && flutter run",
+    "flutter:setup": "node scripts/flutter.mjs create . --project-name nexus_widget --platforms web && node scripts/flutter.mjs pub get",
+    "flutter:run": "node scripts/flutter.mjs run",
+    "flutter:build:dashboard": "node scripts/flutter.mjs build web --target lib/main_dashboard.dart --base-href /flutter-dashboard/ && node scripts/copy-flutter-dashboard.mjs",
+    "flutter:run:dashboard": "node scripts/flutter.mjs run -d chrome --target lib/main_dashboard.dart",
     "es:up": "docker compose up -d",
     "es:down": "docker compose down",
     "es:seed": "node server/seed.mjs"
