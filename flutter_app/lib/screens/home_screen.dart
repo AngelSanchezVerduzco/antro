@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/promocion.dart';
 import '../services/api_service.dart';
+import '../services/local_pin_service.dart';
 import '../services/notification_service.dart';
 import 'promo_detail_screen.dart';
 
@@ -10,10 +11,16 @@ class HomeScreen extends StatefulWidget {
     super.key,
     required this.apiService,
     required this.notificationService,
+    required this.onLogout,
+    required this.pinService,
+    this.linkedEmail,
   });
 
   final ApiService apiService;
   final NotificationService notificationService;
+  final VoidCallback onLogout;
+  final LocalPinService pinService;
+  final String? linkedEmail;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -103,12 +110,28 @@ class _HomeScreenState extends State<HomeScreen> {
         title: const Text('Nexus Widget'),
         backgroundColor: const Color(0xFF5B21B6),
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            tooltip: 'Cerrar sesion',
+            onPressed: widget.onLogout,
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
+          if (widget.linkedEmail != null)
+            Card(
+              child: ListTile(
+                leading: const Icon(Icons.watch),
+                title: Text('Vinculado: ${widget.linkedEmail}'),
+                subtitle: const Text('Smartwatch conectado a tu perfil Nexus'),
+              ),
+            ),
+          const SizedBox(height: 8),
           const Text(
-            'Simulador de wearable / smart TV',
+            'Simulador de smartwatch / wearable',
             style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
           ),
           const SizedBox(height: 8),

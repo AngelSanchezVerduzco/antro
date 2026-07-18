@@ -59,3 +59,8 @@ Thumbs.db
 /flutter_app/macos/
 /flutter_app/windows/
 /flutter_app/web/
+
+# Spring Boot
+/bck-ms-a/target/
+/bck-ms-a/.env
+

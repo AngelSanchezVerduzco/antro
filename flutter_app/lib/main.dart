@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'models/promocion.dart';
-import 'screens/home_screen.dart';
+import 'screens/app_gate.dart';
 import 'screens/promo_detail_screen.dart';
 import 'services/api_service.dart';
 import 'services/notification_service.dart';
@@ -52,7 +52,7 @@ class NexusWidgetApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7C3AED)),
         useMaterial3: true,
       ),
-      home: HomeScreen(
+      home: AppGate(
         apiService: _apiService,
         notificationService: _notificationService,
       ),
