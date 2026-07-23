@@ -6,5 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface LinkedDeviceRepository extends JpaRepository<LinkedDevice, Long> {
 
+    Optional<LinkedDevice> findByDeviceId(String deviceId);
+
     Optional<LinkedDevice> findByDeviceIdAndRevokedFalse(String deviceId);
 }

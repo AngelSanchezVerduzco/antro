@@ -38,6 +38,8 @@ public class SecurityConfig {
                         .permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/device/status")
                         .permitAll()
+                        .requestMatchers("/api/users/**")
+                        .hasRole("ADMIN")
                         .anyRequest()
                         .authenticated())
                 .headers(headers -> headers.disable())

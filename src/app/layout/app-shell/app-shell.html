@@ -11,7 +11,7 @@
     </div>
 
     <nav class="sidebar-nav" aria-label="Menú principal">
-      @for (item of navItems; track item.route) {
+      @for (item of visibleNavItems(); track item.route) {
         <a
           class="nav-link"
           [routerLink]="item.route"
@@ -66,6 +66,19 @@
               <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 21s7-4.35 7-11a7 7 0 1 0-14 0c0 6.65 7 11 7 11Z" />
                 <circle cx="12" cy="10" r="2.5" />
+              </svg>
+            }
+            @case ('watch') {
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="6" y="4" width="12" height="16" rx="3" />
+                <path d="M9 4V2h6v2M9 22v-2h6v2M12 8v4l2 1" />
+              </svg>
+            }
+            @case ('users') {
+              <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             }
           }
@@ -157,18 +170,30 @@
       </div>
 
       <div class="header-side header-side--right">
-      <div class="guest-profile">
-        <div class="guest-avatar" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <circle cx="12" cy="8" r="4" />
-            <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
-          </svg>
+        <div class="guest-profile">
+          <div class="guest-avatar" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="8" r="4" />
+              <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" />
+            </svg>
+          </div>
+          <div class="guest-info">
+            @if (auth.isLoggedIn()) {
+              <span class="guest-greeting"
+                >Hola, <strong>{{ auth.user()?.fullName }}</strong></span
+              >
+              <span class="guest-sub">{{ auth.user()?.role }} · {{ auth.user()?.email }}</span>
+              <button type="button" class="auth-link-btn" (click)="auth.logout()">Cerrar sesion</button>
+            } @else {
+              <span class="guest-greeting">Hola, <strong>Invitado</strong></span>
+              <span class="guest-sub">
+                <a routerLink="/login" class="auth-link">Entrar</a>
+                ·
+                <a routerLink="/register" class="auth-link">Registrarse</a>
+              </span>
+            }
+          </div>
         </div>
-        <div class="guest-info">
-          <span class="guest-greeting">Hola, <strong>Invitado</strong></span>
-          <span class="guest-sub">Disfruta la noche</span>
-        </div>
-      </div>
       </div>
     </header>
 

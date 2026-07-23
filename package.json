@@ -8,6 +8,7 @@
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "api": "node server/index.mjs",
+    "db:seed": "node server/db-seed.mjs",
     "flutter:setup": "node scripts/flutter.mjs create . --project-name nexus_widget --platforms web && node scripts/flutter.mjs pub get",
     "flutter:run": "node scripts/flutter.mjs run",
     "flutter:build:dashboard": "node scripts/flutter.mjs build web --target lib/main_dashboard.dart --base-href /flutter-dashboard/ && node scripts/copy-flutter-dashboard.mjs",
@@ -36,6 +37,7 @@
     "@angular/forms": "^20.3.0",
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
+    "pg": "^8.22.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.15.0"

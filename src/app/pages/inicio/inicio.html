@@ -10,7 +10,7 @@
     <p class="hero-eyebrow">Bienvenido a</p>
     <h1 class="hero-title">NEXUS NIGHTCLUB</h1>
     <p class="hero-desc">La mejor música, ambiente y experiencias únicas.</p>
-    <button type="button" class="btn-primary">Conoce más →</button>
+    <a routerLink="/eventos" class="btn-primary">Conoce más →</a>
   </div>
 
   <div class="hero-dots" role="tablist" aria-label="Slides del carrusel">
@@ -29,7 +29,7 @@
 <section class="section events-section" aria-labelledby="eventos-heading">
   <div class="section-header">
     <h2 id="eventos-heading" class="section-title">Próximos eventos</h2>
-    <a href="#" class="section-link" (click)="$event.preventDefault()">Ver todos →</a>
+    <a routerLink="/eventos" class="section-link">Ver todos →</a>
   </div>
 
   <div class="events-row">
@@ -41,17 +41,25 @@
           <p class="event-meta">{{ evento.generos }}</p>
           <p class="event-detail">{{ evento.hora }} · {{ evento.lugar }}</p>
         </article>
+      } @empty {
+        <p class="event-meta">Sin eventos. Ejecuta npm run db:seed.</p>
       }
     </div>
 
     <aside class="promo-card" aria-label="Promoción destacada">
       <p class="promo-label">Promoción destacada</p>
-      <h3 class="promo-title">2X1 EN<br />COCTELES</h3>
-      <p class="promo-sub">TODOS LOS VIERNES</p>
+      @if (promo) {
+        <h3 class="promo-title">{{ promo.title }}</h3>
+        <p class="promo-sub">{{ promo.body }}</p>
+      } @else {
+        <h3 class="promo-title">2X1 EN<br />COCTELES</h3>
+        <p class="promo-sub">TODOS LOS VIERNES</p>
+      }
       <div class="promo-graphic" aria-hidden="true">
         <span class="promo-glass">🍸</span>
         <span class="promo-glass">🍸</span>
       </div>
+      <a routerLink="/promociones" class="section-link">Ver promociones →</a>
     </aside>
   </div>
 </section>
@@ -59,14 +67,20 @@
 <section class="section gallery-section" aria-labelledby="galeria-heading">
   <div class="section-header">
     <h2 id="galeria-heading" class="section-title">Galería</h2>
-    <a href="#" class="section-link" (click)="$event.preventDefault()">Ver más →</a>
+    <a routerLink="/galeria" class="section-link">Ver más →</a>
   </div>
 
   <div class="gallery-grid">
-    @for (item of galeriaPlaceholders; track item) {
+    @for (item of galeriaItems; track item.id) {
       <div class="gallery-thumb">
-        <span>Imagen {{ item }}</span>
+        <span>{{ item.titulo }}</span>
       </div>
+    } @empty {
+      @for (n of [1, 2, 3, 4, 5, 6]; track n) {
+        <div class="gallery-thumb">
+          <span>Imagen {{ n }}</span>
+        </div>
+      }
     }
   </div>
 </section>

@@ -79,8 +79,9 @@ public class DeviceService {
         String deviceToken = UUID.randomUUID().toString().replace("-", "") + UUID.randomUUID();
         String tokenHash = passwordEncoder.encode(deviceToken);
 
+        // Reutiliza el registro si el device_id ya existe (incluso si estaba revocado).
         LinkedDevice linkedDevice = linkedDeviceRepository
-                .findByDeviceIdAndRevokedFalse(pairingCode.getDeviceId())
+                .findByDeviceId(pairingCode.getDeviceId())
                 .orElseGet(LinkedDevice::new);
 
         linkedDevice.setDeviceId(pairingCode.getDeviceId());

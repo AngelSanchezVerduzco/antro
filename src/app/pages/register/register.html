@@ -1,0 +1,49 @@
+<section class="auth-page">
+  <form class="auth-card" (ngSubmit)="submit()">
+    <h1>Crear cuenta</h1>
+    <p class="auth-sub">Registrate en Nexus Nightclub</p>
+
+    <label>
+      Nombre completo
+      <input type="text" [(ngModel)]="fullName" name="fullName" required minlength="2" />
+    </label>
+
+    <label>
+      Correo
+      <input type="email" [(ngModel)]="email" name="email" required autocomplete="email" />
+    </label>
+
+    <label>
+      Contrasena
+      <input
+        type="password"
+        [(ngModel)]="password"
+        name="password"
+        required
+        minlength="6"
+        autocomplete="new-password"
+      />
+    </label>
+
+    <label>
+      Rol
+      <select [(ngModel)]="role" name="role">
+        <option value="USER">Usuario</option>
+        <option value="ADMIN">Admin</option>
+      </select>
+    </label>
+
+    @if (error) {
+      <p class="auth-error">{{ error }}</p>
+    }
+
+    <button type="submit" class="auth-btn" [disabled]="loading">
+      {{ loading ? 'Creando...' : 'Registrarme' }}
+    </button>
+
+    <p class="auth-footer">
+      ¿Ya tienes cuenta?
+      <a routerLink="/login">Inicia sesion</a>
+    </p>
+  </form>
+</section>

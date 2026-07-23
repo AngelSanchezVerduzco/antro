@@ -1,0 +1,45 @@
+<section class="page">
+  <h1>Promociones</h1>
+  <p class="page-lead">Promociones activas desde Supabase. El widget Flutter consume la ultima.</p>
+
+  @if (auth.isAdmin()) {
+    <form class="form-panel" (ngSubmit)="create()">
+      <h2>Publicar promocion (admin)</h2>
+      <label>
+        Titulo
+        <input [(ngModel)]="title" name="title" required />
+      </label>
+      <label>
+        Descripcion
+        <textarea [(ngModel)]="body" name="body" rows="3" required></textarea>
+      </label>
+      @if (error) {
+        <p class="msg-err">{{ error }}</p>
+      }
+      @if (message) {
+        <p class="msg-ok">{{ message }}</p>
+      }
+      <button class="btn" type="submit" [disabled]="saving">
+        {{ saving ? 'Publicando...' : 'Publicar' }}
+      </button>
+    </form>
+  }
+
+  @if (loading) {
+    <p class="page-lead">Cargando...</p>
+  } @else {
+    <div class="cards">
+      @for (item of items; track item.id) {
+        <article class="card">
+          <img class="promo-img" [src]="item.imageUrl" [alt]="item.title" />
+          <h3>{{ item.title }}</h3>
+          <p>{{ item.body }}</p>
+          <p>Vigencia: {{ item.expiresAt | date: 'medium' }}</p>
+          @if (auth.isAdmin()) {
+            <button type="button" class="btn btn-danger" (click)="remove(item.id)">Eliminar</button>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

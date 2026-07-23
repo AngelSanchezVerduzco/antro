@@ -1,0 +1,60 @@
+<section class="page">
+  <h1>Reservaciones</h1>
+  <p class="page-lead">Reserva mesa VIP. Los datos se guardan en Supabase.</p>
+
+  <form class="form-panel" (ngSubmit)="submit()">
+    <label>
+      Nombre
+      <input [(ngModel)]="fullName" name="fullName" required />
+    </label>
+    <label>
+      Correo
+      <input type="email" [(ngModel)]="email" name="email" required />
+    </label>
+    <label>
+      Telefono
+      <input [(ngModel)]="phone" name="phone" />
+    </label>
+    <label>
+      Personas
+      <input type="number" min="1" max="20" [(ngModel)]="partySize" name="partySize" required />
+    </label>
+    <label>
+      Fecha y hora
+      <input type="datetime-local" [(ngModel)]="reservedAt" name="reservedAt" required />
+    </label>
+    <label>
+      Notas
+      <textarea [(ngModel)]="notes" name="notes" rows="3"></textarea>
+    </label>
+
+    @if (error) {
+      <p class="msg-err">{{ error }}</p>
+    }
+    @if (message) {
+      <p class="msg-ok">{{ message }}</p>
+    }
+
+    <button class="btn" type="submit">Reservar</button>
+  </form>
+
+  <h2>Tus reservaciones</h2>
+  @if (loading) {
+    <p class="page-lead">Cargando...</p>
+  } @else if (items.length === 0) {
+    <p class="page-lead">Aun no hay reservaciones para este correo.</p>
+  } @else {
+    <div class="cards">
+      @for (item of items; track item.id) {
+        <article class="card">
+          <span class="badge">{{ item.status }}</span>
+          <h3>{{ item.fullName }} · {{ item.partySize }} pers.</h3>
+          <p>{{ item.reservedAt | date: 'medium' }}</p>
+          @if (item.notes) {
+            <p>{{ item.notes }}</p>
+          }
+        </article>
+      }
+    </div>
+  }
+</section>

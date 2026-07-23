@@ -1,0 +1,33 @@
+<section class="page">
+  <h1>Vincular smartwatch</h1>
+  <p class="page-lead">
+    Escribe el codigo de 6 digitos que muestra la app Flutter (estilo Netflix). Debes estar
+    logueado.
+  </p>
+
+  <form class="form-panel" (ngSubmit)="submit()">
+    <label>
+      Codigo del reloj
+      <input
+        type="text"
+        [(ngModel)]="pairingCode"
+        name="pairingCode"
+        required
+        pattern="[0-9]{6}"
+        maxlength="6"
+        placeholder="762719"
+      />
+    </label>
+
+    @if (error) {
+      <p class="msg-err">{{ error }}</p>
+    }
+    @if (message) {
+      <p class="msg-ok">{{ message }}</p>
+    }
+
+    <button class="btn" type="submit" [disabled]="loading">
+      {{ loading ? 'Vinculando...' : 'Confirmar vinculacion' }}
+    </button>
+  </form>
+</section>

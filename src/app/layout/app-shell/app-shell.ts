@@ -12,12 +12,14 @@ import {
   switchMap,
 } from 'rxjs';
 import { SearchHit, SearchResponse } from '../../models/search-hit';
+import { AuthService } from '../../services/auth.service';
 import { SearchService } from '../../services/search.service';
 
 interface NavItem {
   label: string;
   route: string;
-  icon: 'home' | 'menu' | 'tag' | 'calendar' | 'image' | 'reservation' | 'location' | 'dashboard';
+  icon: 'home' | 'menu' | 'tag' | 'calendar' | 'image' | 'reservation' | 'location' | 'dashboard' | 'watch' | 'users';
+  adminOnly?: boolean;
 }
 
 @Component({
@@ -28,6 +30,7 @@ interface NavItem {
 })
 export class AppShell implements OnInit, OnDestroy {
   private readonly searchService = inject(SearchService);
+  protected readonly auth = inject(AuthService);
   private readonly searchTerms$ = new Subject<string>();
   private searchSub?: Subscription;
 
@@ -48,7 +51,13 @@ export class AppShell implements OnInit, OnDestroy {
     { label: 'Galería', route: '/galeria', icon: 'image' },
     { label: 'Reservaciones', route: '/reservaciones', icon: 'reservation' },
     { label: 'Ubicación', route: '/ubicacion', icon: 'location' },
+    { label: 'Vincular reloj', route: '/vincular-dispositivo', icon: 'watch' },
+    { label: 'Usuarios', route: '/usuarios', icon: 'users', adminOnly: true },
   ];
+
+  protected visibleNavItems(): NavItem[] {
+    return this.navItems.filter((item) => !item.adminOnly || this.auth.isAdmin());
+  }
 
   ngOnInit(): void {
     this.searchService.health().subscribe((h) => {

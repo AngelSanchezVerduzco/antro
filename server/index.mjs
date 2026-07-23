@@ -8,10 +8,13 @@ import {
   listPromociones,
   getLatestPromocion,
   createPromocion,
+  deletePromocion,
   saveUploadedImage,
   getUploadsDir,
   buildWidgetManifest,
 } from './promociones.mjs';
+import { listCatalog } from './catalog.mjs';
+import { listReservaciones, createReservacion } from './reservaciones.mjs';
 
 const PORT = Number(process.env.API_PORT ?? 3000);
 const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? `http://localhost:${PORT}`;
@@ -19,8 +22,8 @@ const PUBLIC_BASE_URL = process.env.PUBLIC_BASE_URL ?? `http://localhost:${PORT}
 function corsHeaders(extra = {}) {
   return {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'Content-Type, X-Filename',
+    'Access-Control-Allow-Methods': 'GET, POST, DELETE, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, X-Filename, Authorization',
     ...extra,
   };
 }
@@ -86,56 +89,63 @@ const server = http.createServer(async (req, res) => {
 
   const url = new URL(req.url ?? '/', `http://localhost:${PORT}`);
 
-  if (req.method === 'GET' && url.pathname.startsWith('/uploads/')) {
-    const served = await serveStaticUpload(res, url.pathname);
-    if (!served) sendJson(res, 404, { error: 'Archivo no encontrado' });
-    return;
-  }
-
-  if (req.method === 'GET' && url.pathname === '/api/health') {
-    const elasticsearch = await esReady();
-    sendJson(res, 200, { ok: true, elasticsearch });
-    return;
-  }
-
-  if (req.method === 'GET' && url.pathname === '/api/widget/manifest') {
-    sendJson(res, 200, buildWidgetManifest(PUBLIC_BASE_URL));
-    return;
-  }
-
-  if (req.method === 'GET' && url.pathname === '/api/promociones/latest') {
-    const promo = await getLatestPromocion();
-    if (!promo) {
-      sendJson(res, 404, { error: 'No hay promociones activas' });
+  try {
+    if (req.method === 'GET' && url.pathname.startsWith('/uploads/')) {
+      const served = await serveStaticUpload(res, url.pathname);
+      if (!served) sendJson(res, 404, { error: 'Archivo no encontrado' });
       return;
     }
-    sendJson(res, 200, withAbsoluteImage(promo));
-    return;
-  }
 
-  if (req.method === 'GET' && url.pathname === '/api/promociones') {
-    const promos = await listPromociones();
-    sendJson(res, 200, {
-      total: promos.length,
-      items: promos.map(withAbsoluteImage),
-    });
-    return;
-  }
+    if (req.method === 'GET' && url.pathname === '/api/health') {
+      const elasticsearch = await esReady();
+      sendJson(res, 200, { ok: true, elasticsearch, database: 'supabase' });
+      return;
+    }
 
-  if (req.method === 'POST' && url.pathname === '/api/promociones/upload') {
-    try {
+    if (req.method === 'GET' && url.pathname === '/api/widget/manifest') {
+      sendJson(res, 200, buildWidgetManifest(PUBLIC_BASE_URL));
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/promociones/latest') {
+      const promo = await getLatestPromocion();
+      if (!promo) {
+        sendJson(res, 404, { error: 'No hay promociones activas' });
+        return;
+      }
+      sendJson(res, 200, withAbsoluteImage(promo));
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/promociones') {
+      const promos = await listPromociones();
+      sendJson(res, 200, {
+        total: promos.length,
+        items: promos.map(withAbsoluteImage),
+      });
+      return;
+    }
+
+    if (req.method === 'DELETE' && url.pathname.startsWith('/api/promociones/')) {
+      const id = decodeURIComponent(url.pathname.replace('/api/promociones/', ''));
+      const ok = await deletePromocion(id);
+      if (!ok) {
+        sendJson(res, 404, { error: 'Promocion no encontrada' });
+        return;
+      }
+      sendJson(res, 200, { ok: true });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/promociones/upload') {
       const buffer = await readBody(req);
       const filename = req.headers['x-filename'] ?? 'promo-upload.jpg';
       const imagePath = await saveUploadedImage(String(filename), buffer);
       sendJson(res, 201, { imageUrl: absolutizeImageUrl(imagePath) });
-    } catch (err) {
-      sendJson(res, 500, { error: err.message });
+      return;
     }
-    return;
-  }
 
-  if (req.method === 'POST' && url.pathname === '/api/promociones') {
-    try {
+    if (req.method === 'POST' && url.pathname === '/api/promociones') {
       const buffer = await readBody(req);
       const payload = JSON.parse(buffer.toString('utf-8'));
       const { title, body, imageUrl, imageBase64, deepLink, expiresAt } = payload;
@@ -169,21 +179,55 @@ const server = http.createServer(async (req, res) => {
       });
 
       sendJson(res, 201, withAbsoluteImage(promo));
-    } catch (err) {
-      sendJson(res, 400, { error: err.message });
-    }
-    return;
-  }
-
-  if (req.method === 'GET' && url.pathname === '/api/search') {
-    const q = url.searchParams.get('q') ?? '';
-
-    if (!q.trim()) {
-      sendJson(res, 200, { total: 0, hits: [] });
       return;
     }
 
-    try {
+    if (req.method === 'GET' && url.pathname === '/api/catalog') {
+      const tipo = url.searchParams.get('tipo') ?? undefined;
+      const categoria = url.searchParams.get('categoria') ?? undefined;
+      const items = await listCatalog({ tipo, categoria });
+      sendJson(res, 200, { total: items.length, items });
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/reservaciones') {
+      const email = url.searchParams.get('email') ?? undefined;
+      const items = await listReservaciones({ email });
+      sendJson(res, 200, { total: items.length, items });
+      return;
+    }
+
+    if (req.method === 'POST' && url.pathname === '/api/reservaciones') {
+      const buffer = await readBody(req);
+      const payload = JSON.parse(buffer.toString('utf-8'));
+      const { fullName, email, phone, partySize, reservedAt, notes, userId } = payload;
+
+      if (!fullName?.trim() || !email?.trim() || !reservedAt) {
+        sendJson(res, 400, { error: 'fullName, email y reservedAt son obligatorios' });
+        return;
+      }
+
+      const reserva = await createReservacion({
+        userId,
+        fullName,
+        email,
+        phone,
+        partySize,
+        reservedAt,
+        notes,
+      });
+      sendJson(res, 201, reserva);
+      return;
+    }
+
+    if (req.method === 'GET' && url.pathname === '/api/search') {
+      const q = url.searchParams.get('q') ?? '';
+
+      if (!q.trim()) {
+        sendJson(res, 200, { total: 0, hits: [] });
+        return;
+      }
+
       const elasticsearch = await esReady();
       if (!elasticsearch) {
         sendJson(res, 503, {
@@ -196,13 +240,14 @@ const server = http.createServer(async (req, res) => {
 
       const result = await searchDocuments(q);
       sendJson(res, 200, result);
-    } catch (err) {
-      sendJson(res, 500, { error: err.message, total: 0, hits: [] });
+      return;
     }
-    return;
-  }
 
-  sendJson(res, 404, { error: 'No encontrado' });
+    sendJson(res, 404, { error: 'No encontrado' });
+  } catch (err) {
+    console.error(err);
+    sendJson(res, 500, { error: err.message ?? 'Error interno' });
+  }
 });
 
 await ensurePromoStorage();
@@ -210,10 +255,10 @@ await ensurePromoStorage();
 server.listen(PORT, () => {
   console.log(`API Nexus en http://localhost:${PORT}`);
   console.log('  GET  /api/health');
+  console.log('  GET  /api/catalog?tipo=carta');
   console.log('  GET  /api/search?q=coctel');
   console.log('  GET  /api/promociones');
   console.log('  GET  /api/promociones/latest');
-  console.log('  GET  /api/widget/manifest');
   console.log('  POST /api/promociones');
-  console.log('  POST /api/promociones/upload');
+  console.log('  GET/POST /api/reservaciones');
 });

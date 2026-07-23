@@ -2,40 +2,31 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { randomUUID } from 'node:crypto';
+import { query } from './db.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, 'data');
 const UPLOADS_DIR = path.join(__dirname, 'uploads');
-const STORE_FILE = path.join(DATA_DIR, 'promociones.json');
 
-const DEFAULT_PROMOS = [
-  {
-    id: 'promo-2x1-cocteles',
-    type: 'promocion_nueva',
-    title: '2x1 en cócteles',
-    body: 'Promoción destacada todos los viernes en Nexus Nightclub.',
-    imageUrl: '/uploads/promo-default.svg',
-    deepLink: '/inicio',
-    expiresAt: '2026-12-31T23:59:59.000Z',
-    createdAt: '2026-06-01T12:00:00.000Z',
-  },
-];
+function mapPromo(row) {
+  return {
+    id: row.id,
+    type: row.type,
+    title: row.title,
+    body: row.body,
+    imageUrl: row.image_url,
+    deepLink: row.deep_link,
+    expiresAt: row.expires_at instanceof Date ? row.expires_at.toISOString() : row.expires_at,
+    createdAt: row.created_at instanceof Date ? row.created_at.toISOString() : row.created_at,
+  };
+}
 
 export async function ensurePromoStorage() {
-  await fs.mkdir(DATA_DIR, { recursive: true });
   await fs.mkdir(UPLOADS_DIR, { recursive: true });
 
+  const svgPath = path.join(UPLOADS_DIR, 'promo-default.svg');
   try {
-    await fs.access(STORE_FILE);
+    await fs.access(svgPath);
   } catch {
-    await fs.writeFile(STORE_FILE, JSON.stringify(DEFAULT_PROMOS, null, 2), 'utf-8');
-  }
-
-  const defaultImage = path.join(UPLOADS_DIR, 'promo-default.jpg');
-  try {
-    await fs.access(defaultImage);
-  } catch {
-    // Placeholder SVG servido como recurso estático de demo.
     const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
       <defs>
         <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -47,47 +38,50 @@ export async function ensurePromoStorage() {
       <text x="400" y="210" fill="#fff" font-size="42" font-family="Arial" text-anchor="middle">2x1 COCTELES</text>
       <text x="400" y="260" fill="#f5d0fe" font-size="24" font-family="Arial" text-anchor="middle">NEXUS NIGHTCLUB</text>
     </svg>`;
-    await fs.writeFile(path.join(UPLOADS_DIR, 'promo-default.svg'), svg, 'utf-8');
+    await fs.writeFile(svgPath, svg, 'utf-8');
   }
 }
 
-async function readPromos() {
-  const raw = await fs.readFile(STORE_FILE, 'utf-8');
-  return JSON.parse(raw);
-}
-
-async function writePromos(promos) {
-  await fs.writeFile(STORE_FILE, JSON.stringify(promos, null, 2), 'utf-8');
-}
-
 export async function listPromociones() {
-  const promos = await readPromos();
-  return promos.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+  const result = await query(
+    `SELECT * FROM promociones ORDER BY created_at DESC`,
+  );
+  return result.rows.map(mapPromo);
 }
 
 export async function getLatestPromocion() {
-  const promos = await listPromociones();
-  const now = Date.now();
-  const active = promos.filter((p) => new Date(p.expiresAt).getTime() > now);
-  return active[0] ?? null;
+  const result = await query(
+    `SELECT * FROM promociones
+     WHERE expires_at > NOW()
+     ORDER BY created_at DESC
+     LIMIT 1`,
+  );
+  return result.rows[0] ? mapPromo(result.rows[0]) : null;
 }
 
 export async function createPromocion({ title, body, imageUrl, deepLink, expiresAt }) {
-  const promos = await readPromos();
-  const promo = {
-    id: `promo-${randomUUID().slice(0, 8)}`,
-    type: 'promocion_nueva',
-    title: title.trim(),
-    body: body.trim(),
-    imageUrl,
-    deepLink: deepLink?.trim() || '/inicio',
-    expiresAt: expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
-    createdAt: new Date().toISOString(),
-  };
+  const id = `promo-${randomUUID().slice(0, 8)}`;
+  const expires =
+    expiresAt || new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
+  const result = await query(
+    `INSERT INTO promociones (id, type, title, body, image_url, deep_link, expires_at)
+     VALUES ($1, 'promocion_nueva', $2, $3, $4, $5, $6)
+     RETURNING *`,
+    [
+      id,
+      title.trim(),
+      body.trim(),
+      imageUrl || '/uploads/promo-default.svg',
+      deepLink?.trim() || '/inicio',
+      expires,
+    ],
+  );
+  return mapPromo(result.rows[0]);
+}
 
-  promos.unshift(promo);
-  await writePromos(promos);
-  return promo;
+export async function deletePromocion(id) {
+  const result = await query(`DELETE FROM promociones WHERE id = $1 RETURNING id`, [id]);
+  return result.rowCount > 0;
 }
 
 export async function saveUploadedImage(filename, buffer) {

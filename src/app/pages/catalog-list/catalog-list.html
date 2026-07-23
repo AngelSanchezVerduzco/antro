@@ -1,0 +1,24 @@
+<section class="page">
+  <h1>{{ title }}</h1>
+  @if (lead) {
+    <p class="page-lead">{{ lead }}</p>
+  }
+
+  @if (loading) {
+    <p class="page-lead">Cargando...</p>
+  } @else if (error) {
+    <p class="msg-err">{{ error }}</p>
+  } @else if (items.length === 0) {
+    <p class="page-lead">No hay elementos todavia. Ejecuta npm run db:seed.</p>
+  } @else {
+    <div class="cards">
+      @for (item of items; track item.id) {
+        <article class="card">
+          <span class="badge">{{ item.categoria }}</span>
+          <h2>{{ item.titulo }}</h2>
+          <p>{{ item.descripcion }}</p>
+        </article>
+      }
+    </div>
+  }
+</section>

@@ -7,10 +7,14 @@ import com.example.bck_ms_a.dto.UserResponse;
 import com.example.bck_ms_a.entity.Role;
 import com.example.bck_ms_a.entity.User;
 import com.example.bck_ms_a.repository.UserRepository;
+import java.time.Instant;
+import java.util.Comparator;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
@@ -44,11 +48,14 @@ public class AuthService {
         user.setPasswordHash(passwordEncoder.encode(request.password()));
         user.setFullName(request.fullName().trim());
         user.setRole(request.role() != null ? request.role() : Role.USER);
+        user.setEnabled(true);
+        user.setMustChangePassword(false);
 
         User saved = userRepository.save(user);
         return buildAuthResponse(saved);
     }
 
+    @Transactional
     public AuthResponse login(LoginRequest request) {
         String email = normalizeEmail(request.email());
 
@@ -60,6 +67,14 @@ public class AuthService {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenciales invalidas");
         }
 
+        if (!user.isEnabled()) {
+            throw new ResponseStatusException(
+                    HttpStatus.FORBIDDEN, "Cuenta deshabilitada. Contacta al administrador.");
+        }
+
+        user.setLastLoginAt(Instant.now());
+        userRepository.save(user);
+
         return buildAuthResponse(user);
     }
 
@@ -68,7 +83,47 @@ public class AuthService {
                 .findByEmailIgnoreCase(normalizeEmail(email))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
 
+        if (!user.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cuenta deshabilitada");
+        }
+
         return toUserResponse(user);
+    }
+
+    public List<UserResponse> listUsers() {
+        return userRepository.findAll().stream()
+                .sorted(Comparator.comparing(User::getCreatedAt).reversed())
+                .map(this::toUserResponse)
+                .toList();
+    }
+
+    @Transactional
+    public UserResponse setEnabled(String adminEmail, Long userId, boolean enabled) {
+        User admin = requireAdmin(adminEmail);
+        User target = userRepository
+                .findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        if (admin.getId().equals(target.getId()) && !enabled) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "No puedes deshabilitar tu propia cuenta");
+        }
+
+        target.setEnabled(enabled);
+        return toUserResponse(userRepository.save(target));
+    }
+
+    private User requireAdmin(String email) {
+        User user = userRepository
+                .findByEmailIgnoreCase(normalizeEmail(email))
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Usuario no encontrado"));
+
+        if (user.getRole() != Role.ADMIN) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Solo ADMIN puede administrar usuarios");
+        }
+        if (!user.isEnabled()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Cuenta deshabilitada");
+        }
+        return user;
     }
 
     private AuthResponse buildAuthResponse(User user) {
@@ -77,7 +132,15 @@ public class AuthService {
     }
 
     public UserResponse toUserResponse(User user) {
-        return new UserResponse(user.getId(), user.getEmail(), user.getFullName(), user.getRole(), user.getCreatedAt());
+        return new UserResponse(
+                user.getId(),
+                user.getEmail(),
+                user.getFullName(),
+                user.getRole(),
+                user.isEnabled(),
+                user.isMustChangePassword(),
+                user.getLastLoginAt(),
+                user.getCreatedAt());
     }
 
     private String normalizeEmail(String email) {

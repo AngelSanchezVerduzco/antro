@@ -1,0 +1,62 @@
+<section class="page">
+  <h1>Usuarios</h1>
+  <p class="page-lead">
+    Administracion de cuentas (Practica 13): habilitar o deshabilitar sin eliminar.
+    Una cuenta deshabilitada conserva sus datos pero no puede iniciar sesion.
+  </p>
+
+  @if (error) {
+    <p class="msg-err">{{ error }}</p>
+  }
+  @if (message) {
+    <p class="msg-ok">{{ message }}</p>
+  }
+
+  @if (loading) {
+    <p>Cargando...</p>
+  } @else {
+    <div class="table-wrap">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Usuario</th>
+            <th>Nombre</th>
+            <th>Habilitado</th>
+            <th>Grupo</th>
+            <th>Cambio password</th>
+            <th>Creado</th>
+            <th>Ultimo login</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (u of items; track u.id) {
+            <tr [class.row-disabled]="!u.enabled">
+              <td>{{ u.email }}</td>
+              <td>{{ u.fullName }}</td>
+              <td>
+                <span class="badge" [class.badge-off]="!u.enabled">
+                  {{ u.enabled ? 'Si' : 'No' }}
+                </span>
+              </td>
+              <td>{{ u.role }}</td>
+              <td>{{ u.mustChangePassword ? 'Si' : 'No' }}</td>
+              <td>{{ u.createdAt | date: 'short' }}</td>
+              <td>{{ u.lastLoginAt ? (u.lastLoginAt | date: 'short') : '—' }}</td>
+              <td>
+                <button
+                  class="btn"
+                  type="button"
+                  [disabled]="busyId === u.id || u.id === auth.user()?.id"
+                  (click)="toggle(u)"
+                >
+                  {{ u.enabled ? 'Deshabilitar' : 'Habilitar' }}
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</section>
