@@ -5,6 +5,7 @@ import 'screens/app_gate.dart';
 import 'screens/promo_detail_screen.dart';
 import 'services/api_service.dart';
 import 'services/notification_service.dart';
+import 'theme/nexus_theme.dart';
 
 final _apiService = ApiService();
 final _notificationService = NotificationService();
@@ -47,11 +48,8 @@ class NexusWidgetApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       navigatorKey: _navigatorKey,
-      title: 'Nexus Widget',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF7C3AED)),
-        useMaterial3: true,
-      ),
+      title: 'Nexus',
+      theme: nexusMobileTheme(),
       home: AppGate(
         apiService: _apiService,
         notificationService: _notificationService,

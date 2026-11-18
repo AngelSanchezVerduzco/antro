@@ -4,6 +4,9 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:uuid/uuid.dart';
 
+/// El PIN de la app son 4, 5 o 6 dígitos. Nada más entra.
+bool pinEsValido(String pin) => RegExp(r'^\d{4,6}$').hasMatch(pin);
+
 /// PIN local del smartwatch (hasheado, nunca en texto plano).
 class LocalPinService {
   LocalPinService({FlutterSecureStorage? storage})
@@ -98,9 +101,7 @@ class LocalPinService {
     await _storage.deleteAll();
   }
 
-  bool _isValidPin(String pin) {
-    return RegExp(r'^\d{4,6}$').hasMatch(pin);
-  }
+  bool _isValidPin(String pin) => pinEsValido(pin);
 
   String _hashPin(String pin, String salt) {
     final bytes = utf8.encode('$salt:$pin');

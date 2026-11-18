@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../services/local_pin_service.dart';
+import '../theme/nexus_theme.dart';
 
 class PinSetupScreen extends StatefulWidget {
   const PinSetupScreen({super.key, required this.pinService, required this.onCompleted});
@@ -39,20 +40,23 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
       await widget.pinService.openSession();
       widget.onCompleted();
     } catch (err) {
-      setState(() => _error = err.toString());
+      setState(() => _error = err.toString().replaceFirst('Exception: ', ''));
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Crear PIN'), backgroundColor: const Color(0xFF5B21B6), foregroundColor: Colors.white),
+      appBar: AppBar(title: const Text('Crear PIN')),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Protege tu smartwatch con un PIN de 4 a 6 digitos.', style: TextStyle(fontSize: 16)),
+            const Text(
+              'Protege tu celular con un PIN de 4 a 6 dígitos. Luego podrás vincularlo y subir promociones.',
+              style: TextStyle(fontSize: 16, height: 1.4),
+            ),
             const SizedBox(height: 24),
             TextField(
               controller: _pinController,
@@ -60,7 +64,7 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
               obscureText: true,
               maxLength: 6,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(labelText: 'PIN', border: OutlineInputBorder(), counterText: ''),
+              decoration: const InputDecoration(labelText: 'PIN', counterText: ''),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -69,11 +73,11 @@ class _PinSetupScreenState extends State<PinSetupScreen> {
               obscureText: true,
               maxLength: 6,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(labelText: 'Confirmar PIN', border: OutlineInputBorder(), counterText: ''),
+              decoration: const InputDecoration(labelText: 'Confirmar PIN', counterText: ''),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: TextStyle(color: Colors.red.shade700)),
+              NexusStatusBanner(texto: _error!, error: true),
             ],
             const Spacer(),
             FilledButton(onPressed: _savePin, child: const Text('Guardar PIN')),

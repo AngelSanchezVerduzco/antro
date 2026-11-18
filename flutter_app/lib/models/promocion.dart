@@ -25,10 +25,10 @@ class Promocion {
       type: json['type'] as String? ?? 'promocion_nueva',
       title: json['title'] as String,
       body: json['body'] as String,
-      imageUrl: json['imageUrl'] as String,
+      imageUrl: json['imageUrl'] as String? ?? '',
       deepLink: json['deepLink'] as String? ?? '/inicio',
-      expiresAt: json['expiresAt'] as String,
-      createdAt: json['createdAt'] as String,
+      expiresAt: json['expiresAt']?.toString() ?? '',
+      createdAt: json['createdAt']?.toString() ?? '',
     );
   }
 }

@@ -2,10 +2,14 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 
-const String authBaseUrl = String.fromEnvironment(
+import '../config/api_hosts.dart';
+
+const String _authBaseRaw = String.fromEnvironment(
   'AUTH_BASE_URL',
   defaultValue: 'http://localhost:8080',
 );
+
+String get authBaseUrl => urlParaDispositivo(_authBaseRaw);
 
 class DeviceAuthApi {
   Future<Map<String, dynamic>> requestPairing(String deviceId) async {

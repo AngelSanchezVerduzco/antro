@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../services/biometric_service.dart';
 import '../services/local_pin_service.dart';
+import '../theme/nexus_theme.dart';
 
 class PinLoginScreen extends StatefulWidget {
   const PinLoginScreen({
@@ -56,7 +57,7 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
   Future<void> _unlockWithBiometric() async {
     final ok = await widget.biometricService.authenticate();
     if (!ok) {
-      setState(() => _error = 'Biometria no disponible o cancelada.');
+      setState(() => _error = 'Biometría no disponible o cancelada.');
       return;
     }
 
@@ -67,13 +68,16 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Desbloquear'), backgroundColor: const Color(0xFF5B21B6), foregroundColor: Colors.white),
+      appBar: AppBar(title: const Text('Desbloquear celular')),
       body: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            const Text('Ingresa tu PIN para ver promociones y datos protegidos.', style: TextStyle(fontSize: 16)),
+            const Text(
+              'Ingresa tu PIN para continuar. Si el celular no está vinculado, después te pedirá el código de acceso.',
+              style: TextStyle(fontSize: 16, height: 1.4),
+            ),
             const SizedBox(height: 24),
             TextField(
               controller: _pinController,
@@ -81,21 +85,21 @@ class _PinLoginScreenState extends State<PinLoginScreen> {
               obscureText: true,
               maxLength: 6,
               inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-              decoration: const InputDecoration(labelText: 'PIN', border: OutlineInputBorder(), counterText: ''),
+              decoration: const InputDecoration(labelText: 'PIN', counterText: ''),
               onSubmitted: (_) => _unlockWithPin(),
             ),
             if (_error != null) ...[
               const SizedBox(height: 12),
-              Text(_error!, style: TextStyle(color: Colors.red.shade700)),
+              NexusStatusBanner(texto: _error!, error: true),
             ],
-            const SizedBox(height: 16),
+            const Spacer(),
             FilledButton(onPressed: _unlockWithPin, child: const Text('Entrar')),
             if (_biometricAvailable) ...[
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               OutlinedButton.icon(
                 onPressed: _unlockWithBiometric,
                 icon: const Icon(Icons.fingerprint),
-                label: const Text('Usar biometria'),
+                label: const Text('Usar biometría'),
               ),
             ],
           ],

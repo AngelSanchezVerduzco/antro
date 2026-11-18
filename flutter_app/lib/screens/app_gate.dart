@@ -5,6 +5,7 @@ import '../services/biometric_service.dart';
 import '../services/device_auth_api.dart';
 import '../services/local_pin_service.dart';
 import '../services/notification_service.dart';
+import '../theme/nexus_theme.dart';
 import 'device_pairing_screen.dart';
 import 'home_screen.dart';
 import 'pin_login_screen.dart';
@@ -82,7 +83,7 @@ class _AppGateState extends State<AppGate> {
   Widget build(BuildContext context) {
     switch (_step) {
       case AppGateStep.loading:
-        return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        return const NexusLoadingScreen();
       case AppGateStep.pinSetup:
         return PinSetupScreen(
           pinService: _pinService,
